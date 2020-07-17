@@ -3,6 +3,7 @@ const http = require('http');
 const https = require('https');
 const httpProxy = require('http-proxy');
 const fs = require('fs');
+const cluster = require('cluster');
 
 const setting = require('./setting.json');
 
@@ -47,20 +48,32 @@ sub_http.use((req, res, next) => {
     }
 });
 
-if(setting.USE_SSL) {
-    let options = {
-        cert: fs.readFileSync(setting.SSL_CERT),
-        key: fs.readFileSync(setting.SSL_KEY)
-    }
-    https.createServer(options, app).listen(setting.HTTPS_PORT, () => {
-        console.log('보안 서버가 구동중입니다!');
-    });
-    http.createServer(sub_http).listen(setting.HTTP_PORT, () => {
-        console.log("보조 HTTP 서버가 구동중입니다!");
+if(cluster.isMaster) {
+    console.log(`마스터 프로세스 ${process.pid}번이 시작되었습니다.`);
+    cluster.fork();
+
+    cluster.on('exit', (worker, code, signal) => {
+        console.log(`${worker.process.pid}번이 종료되었습니다. 새로운 프로세스를 시작합니다.`);
+        cluster.fork();
     });
 }
 else {
-    http.createServer(app).listen(setting.HTTP_PORT, () => {
-        console.log("서버가 구동중입니다!");
-    });
+    if (setting.USE_SSL) {
+        let options = {
+            cert: fs.readFileSync(setting.SSL_CERT),
+            key: fs.readFileSync(setting.SSL_KEY)
+        }
+        https.createServer(options, app).listen(setting.HTTPS_PORT, () => {
+            console.log('보안 서버가 구동중입니다!');
+        });
+        http.createServer(sub_http).listen(setting.HTTP_PORT, () => {
+            console.log("보조 HTTP 서버가 구동중입니다!");
+        });
+    } else {
+        http.createServer(app).listen(setting.HTTP_PORT, () => {
+            console.log("서버가 구동중입니다!");
+        });
+    }
+
+    console.log(`${process.pid}번 슬레이브 프로세스가 시작되었습니다.`);
 }
