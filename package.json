@@ -1,0 +1,28 @@
+{
+  "name": "reverse-proxy",
+  "version": "0.0.1",
+  "description": "Node.js reverse proxy server.",
+  "main": "main.js",
+  "scripts": {
+    "test": "node main.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/wjdgustn/reverse-proxy.git"
+  },
+  "author": "Hyonsu",
+  "license": "AGPL-3.0-or-later",
+  "bugs": {
+    "url": "https://github.com/wjdgustn/reverse-proxy/issues"
+  },
+  "homepage": "https://github.com/wjdgustn/reverse-proxy#readme",
+  "dependencies": {
+    "express": "^4.17.1",
+    "http-proxy": "^1.18.1"
+  },
+  "nodemonConfig": {
+    "ignore": [
+      "domain.json"
+    ]
+  }
+}
