@@ -22,7 +22,11 @@ proxy.on('proxyReq', (proxyReq, req, res, options) => {
 
 
 app.use((req, res, next) => {
-    console.log(`${req.connection.remoteAddress}가 https://${req.hostname}:${setting.HTTPS_PORT}${req.url}에 접속하였습니다.`);
+    const date = new Date();
+    console.log(`[${date.getFullYear()}-${date.getMonth() + 1}-${date.getDay()} ${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}.${date.getMilliseconds()}] ${req.connection.remoteAddress}가 https://${req.hostname}:${setting.HTTPS_PORT}${req.url} 에 접속하였습니다.`);
+    let log = fs.readFileSync('./logs.log');
+    log = log + `\n[${date.getFullYear()}-${date.getMonth() + 1}-${date.getDay()} ${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}.${date.getMilliseconds()}] ${req.connection.remoteAddress}가 https://${req.hostname}:${setting.HTTPS_PORT}${req.url} 에 접속하였습니다.`;
+    fs.writeFileSync('./logs.log', log);
     const domain = JSON.parse(fs.readFileSync('./domain.json'));
 
     if(domain.hasOwnProperty(req.hostname)) {
