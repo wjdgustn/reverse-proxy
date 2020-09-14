@@ -4,6 +4,7 @@ const https = require('https');
 const httpProxy = require('http-proxy');
 const fs = require('fs');
 const cluster = require('cluster');
+const Ddos = require('ddos');
 
 const setting = require('./setting.json');
 
@@ -20,6 +21,10 @@ proxy.on('proxyReq', (proxyReq, req, res, options) => {
     proxyReq.setHeader('x-forwarded-for', req.connection.remoteAddress);
 });
 
+const noddos = `디도스가 감지되었습니다!
+천천히 사용해주세요.`
+const ddos = new Ddos({ burst : 10 , limit : 200 , maxexpiry : 30 , errormessage : noddos });
+app.use(ddos.express);
 
 app.use((req, res, next) => {
     const date = new Date();
